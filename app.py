@@ -34,23 +34,23 @@ df_base = load_data(DATA_PATH)
 # https://psa.gov.ph/system/files/phdsd/Highlights%20of%20the%202023%201st%20sem%20Official%20Poverty%20Statistics.pdf
 # 2018 data
 POVERTY_LINE = {
-    'CAR': 12358,
-    'Caraga': 12346,
-    'VI - Western Visayas': 11964,
-    'V - Bicol Region': 11975,
-    'ARMM': 13599,
-    'III - Central Luzon': 12976,
-    'II - Cagayan Valley': 12182,
-    'IVA - CALABARZON': 13669,
-    'VII - Central Visayas': 12724,
-    'X - Northern Mindanao': 12259,
-    'XI - Davao Region': 12718,
-    'VIII - Eastern Visayas': 12195,
-    'I - Ilocos Region': 12837,
-    'NCR': 14102,
-    'IVB - MIMAROPA': 11472,
-    'XII - SOCCSKSARGEN': 12082,
-    'IX - Zamboanga Peninsula': 12424
+    'CAR': 12358*12,
+    'Caraga': 12346*12,
+    'VI - Western Visayas': 11964*12,
+    'V - Bicol Region': 11975*12,
+    'ARMM': 13599*12,
+    'III - Central Luzon': 12976*12,
+    'II - Cagayan Valley': 12182*12,
+    'IVA - CALABARZON': 13669*12,
+    'VII - Central Visayas': 12724*12,
+    'X - Northern Mindanao': 12259*12,
+    'XI - Davao Region': 12718*12,
+    'VIII - Eastern Visayas': 12195*12,
+    'I - Ilocos Region': 12837*12,
+    'NCR': 14102*12,
+    'IVB - MIMAROPA': 11472*12,
+    'XII - SOCCSKSARGEN': 12082*12,
+    'IX - Zamboanga Peninsula': 12424*12
     } 
 
 
@@ -393,11 +393,449 @@ with tab_pred:
     st.subheader("🎯 Score a single household")
 
     with st.form("score_form"):
-        income     = st.number_input("Total household income (₱)", 0, 1_000_000, 120_000)
-        hh_size    = st.number_input("Household size", 1, 15, 5)
-        food_exp   = st.number_input("Annual food expenditure (₱)", 0, 500_000, 60_000)
-        region_one = st.selectbox("Region", sorted(df_base.Region.unique()))
-        educ       = st.selectbox("Head highest grade", df_base.Household_Head_Highest_Grade_Completed.unique())
+
+        region_one = st.selectbox(
+            "Region",
+            sorted(df_base["Region"].unique())
+        )
+
+        main_income = st.selectbox(
+            "Main source of income",
+            df_base["Main_Source_of_Income"].unique()
+        )
+
+        head_sex = st.selectbox(
+            "Household head sex",
+            df_base["Household_Head_Sex"].unique()
+        )
+
+        marital = st.selectbox(
+            "Head marital status",
+            df_base["Household_Head_Marital_Status"].unique()
+        )
+
+        education = st.selectbox(
+            "Head highest grade completed",
+            df_base["Household_Head_Highest_Grade_Completed"].unique()
+        )
+
+        job_indicator = st.selectbox(
+            "Head job/business indicator",
+            df_base["Household_Head_Job_or_Business_Indicator"].unique()
+        )
+
+        occupation = st.selectbox(
+            "Head occupation",
+            df_base["Household_Head_Occupation"].unique()
+        )
+
+        class_worker = st.selectbox(
+            "Head class of worker",
+            df_base["Household_Head_Class_of_Worker"].unique()
+        )
+
+        hh_type = st.selectbox(
+            "Type of household",
+            df_base["Type_of_Household"].unique()
+        )
+
+        tenure = st.selectbox(
+            "Tenure status",
+            df_base["Tenure_Status"].unique()
+        )
+
+        electricity = st.selectbox(
+            "Electricity",
+            df_base["Electricity"].unique()
+        )
+
+        building = st.selectbox(
+            "Type of building/house",
+            df_base["Type_of_Building_or_House"].unique()
+        )
+
+        roof = st.selectbox(
+            "Type of roof",
+            df_base["Type_of_Roof"].unique()
+        )
+
+        walls = st.selectbox(
+            "Type of walls",
+            df_base["Type_of_Walls"].unique()
+        )
+
+        toilet = st.selectbox(
+            "Toilet facilities",
+            df_base["Toilet_Facilities"].unique()
+        )
+
+        water = st.selectbox(
+            "Main source of water supply",
+            df_base["Main_Source_of_Water_Supply"].unique()
+        )
+
+        ## Numeric inputs
+
+        # 1) Total household income
+        income = st.number_input(
+            "Total household income (₱)",
+            min_value=0,
+            max_value=1_000_000,
+            value=int(df_base["Total_Household_Income"].median())
+        )
+
+        # 2) Total food expenditure
+        food_exp = st.number_input(
+            "Total food expenditure (₱)",
+            min_value=0,
+            max_value=500_000,
+            value=int(df_base["Total_Food_Expenditure"].median())
+        )
+
+        # 3) Food share
+        food_share = st.number_input(
+            "Food share (%)",
+            min_value=0.0,
+            max_value=100.0,
+            value=float(df_base["Food_Share"].median())
+        )
+
+        # 4) Agricultural household indicator
+        agri_hh = st.number_input(
+            "Agricultural household indicator",
+            min_value=0,
+            max_value=1,
+            value=int(df_base["Agricultural_Household_indicator"].mode()[0])
+        )
+
+        # 5) Bread & cereals expenditure
+        bread_cereals = st.number_input(
+            "Bread & cereals expenditure (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Bread_and_Cereals_Expenditure"].median())
+        )
+
+        # 6) Total rice expenditure
+        rice_exp = st.number_input(
+            "Total rice expenditure (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Total_Rice_Expenditure"].median())
+        )
+
+        # 7) Meat expenditure
+        meat_exp = st.number_input(
+            "Meat expenditure (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Meat_Expenditure"].median())
+        )
+
+        # 8) Fish & marine products expenditure
+        fish_exp = st.number_input(
+            "Total fish & marine products expenditure (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Total_Fish_and__marine_products_Expenditure"].median())
+        )
+
+        # 9) Fruit expenditure
+        fruit_exp = st.number_input(
+            "Fruit expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Fruit_Expenditure"].median())
+        )
+
+        # 10) Vegetables expenditure
+        veg_exp = st.number_input(
+            "Vegetables expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Vegetables_Expenditure"].median())
+        )
+
+        # 11) Restaurant & hotels expenditure
+        resto_exp = st.number_input(
+            "Restaurant & hotels expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Restaurant_and_hotels_Expenditure"].median())
+        )
+
+        # 12) Alcoholic beverages expenditure
+        alc_exp = st.number_input(
+            "Alcoholic beverages expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Alcoholic_Beverages_Expenditure"].median())
+        )
+
+        # 13) Tobacco expenditure
+        tob_exp = st.number_input(
+            "Tobacco expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Tobacco_Expenditure"].median())
+        )
+
+        # 14) Clothing, footwear & other wear expenditure
+        cloth_exp = st.number_input(
+            "Clothing, footwear & other wear expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Clothing,_Footwear_and_Other_Wear_Expenditure"].median())
+        )
+
+        # 15) Housing & water expenditure
+        house_water_exp = st.number_input(
+            "Housing & water expenditure (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Housing_and_water_Expenditure"].median())
+        )
+
+        # 16) Imputed house rental value
+        imputed_rent = st.number_input(
+            "Imputed house rental value (₱)",
+            min_value=0,
+            max_value=200_000,
+            value=int(df_base["Imputed_House_Rental_Value"].median())
+        )
+
+        # 17) Medical care expenditure
+        med_exp = st.number_input(
+            "Medical care expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Medical_Care_Expenditure"].median())
+        )
+
+        # 18) Transportation expenditure
+        trans_exp = st.number_input(
+            "Transportation expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Transportation_Expenditure"].median())
+        )
+
+        # 19) Communication expenditure
+        comm_exp = st.number_input(
+            "Communication expenditure (₱)",
+            min_value=0,
+            max_value=50_000,
+            value=int(df_base["Communication_Expenditure"].median())
+        )
+
+        # 20) Education expenditure
+        edu_exp = st.number_input(
+            "Education expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Education_Expenditure"].median())
+        )
+
+        # 21) Miscellaneous goods & services expenditure
+        misc_exp = st.number_input(
+            "Miscellaneous goods & services expenditure (₱)",
+            min_value=0,
+            max_value=100_000,
+            value=int(df_base["Miscellaneous_Goods_and_Services_Expenditure"].median())
+        )
+
+        # 22) Special occasions expenditure
+        special_exp = st.number_input(
+            "Special occasions expenditure (₱)",
+            min_value=0,
+            max_value=50_000,
+            value=int(df_base["Special_Occasions_Expenditure"].median())
+        )
+
+        # 23) Crop farming & gardening expenses
+        crop_exp = st.number_input(
+            "Crop farming & gardening expenses (₱)",
+            min_value=0,
+            max_value=50_000,
+            value=int(df_base["Crop_Farming_and_Gardening_expenses"].median())
+        )
+
+        # 24) Total income from entrepreneurial activities
+        entrepreneurial_inc = st.number_input(
+            "Total income from entrepreneurial activities (₱)",
+            min_value=0,
+            max_value=1_000_000,
+            value=int(df_base["Total_Income_from_Entrepreneurial_Acitivites"].median())
+        )
+
+        # 25) Household head age
+        head_age = st.number_input(
+            "Household head age",
+            min_value=0,
+            max_value=120,
+            value=int(df_base["Household_Head_Age"].median())
+        )
+
+        # 26) Total number of family members
+        hh_size = st.number_input(
+            "Total number of family members",
+            min_value=1,
+            max_value=20,
+            value=int(df_base["Total_Number_of_Family_members"].median())
+        )
+
+        # 27) Members aged <5
+        under5 = st.number_input(
+            "Members aged less than 5 years old",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Members_with_age_less_than_5_year_old"].median())
+        )
+
+        # 28) Members aged 5–17
+        age5_17 = st.number_input(
+            "Members aged 5–17 years old",
+            min_value=0,
+            max_value=20,
+            value=int(df_base["Members_with_age_5_-_17_years_old"].median())
+        )
+
+        # 29) Employed family members
+        employed_members = st.number_input(
+            "Total number of employed family members",
+            min_value=0,
+            max_value=20,
+            value=int(df_base["Total_number_of_family_members_employed"].median())
+        )
+
+        # 30) House floor area
+        floor_area = st.number_input(
+            "House floor area (sqm)",
+            min_value=0,
+            max_value=500,
+            value=int(df_base["House_Floor_Area"].median())
+        )
+
+        # 31) House age
+        house_age = st.number_input(
+            "House age (years)",
+            min_value=0,
+            max_value=100,
+            value=int(df_base["House_Age"].median())
+        )
+
+        # 32) Number of bedrooms
+        bedrooms = st.number_input(
+            "Number of bedrooms",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_bedrooms"].median())
+        )
+
+        # 33) Number of television
+        tv_count = st.number_input(
+            "Number of televisions",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Television"].median())
+        )
+
+        # 34) Number of CD/VCD/DVD players
+        dvd_count = st.number_input(
+            "Number of CD/VCD/DVD players",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_CD/VCD/DVD"].median())
+        )
+
+        # 35) Number of stereo sets
+        stereo_count = st.number_input(
+            "Number of component/stereo sets",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Component/Stereo_set"].median())
+        )
+
+        # 36) Number of refrigerator/freezers
+        fridge_count = st.number_input(
+            "Number of refrigerator/freezers",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Refrigerator/Freezer"].median())
+        )
+
+        # 37) Number of washing machines
+        washer_count = st.number_input(
+            "Number of washing machines",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Washing_Machine"].median())
+        )
+
+        # 38) Number of air conditioners
+        ac_count = st.number_input(
+            "Number of air conditioners",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Airconditioner"].median())
+        )
+
+        # 39) Number of cars/jeeps/vans
+        car_count = st.number_input(
+            "Number of cars/jeeps/vans",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Car,_Jeep,_Van"].median())
+        )
+
+        # 40) Number of landline/wireless telephones
+        phone_landline = st.number_input(
+            "Number of landline/wireless telephones",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Landline/wireless_telephones"].median())
+        )
+
+        # 41) Number of cellular phones
+        phone_cell = st.number_input(
+            "Number of cellular phones",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Cellular_phone"].median())
+        )
+
+        # 42) Number of personal computers
+        pc_count = st.number_input(
+            "Number of personal computers",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Personal_Computer"].median())
+        )
+
+        # 43) Number of stoves with oven/gas range
+        stove_count = st.number_input(
+            "Number of stoves with oven/gas range",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Stove_with_Oven/Gas_Range"].median())
+        )
+
+        # 44) Number of motorized bancas
+        banca_count = st.number_input(
+            "Number of motorized bancas",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Motorized_Banca"].median())
+        )
+
+        # 45) Number of motorcycles/tricycles
+        motorcycle_count = st.number_input(
+            "Number of motorcycles/tricycles",
+            min_value=0,
+            max_value=10,
+            value=int(df_base["Number_of_Motorcycle/Tricycle"].median())
+        )
+
         submitted  = st.form_submit_button("Predict")
 
     if submitted:
@@ -406,20 +844,70 @@ with tab_pred:
             st.stop()
 
         sample = pd.DataFrame([{
+            # categorical
+            "Region": region_one,
+            "Main_Source_of_Income": main_income,
+            "Household_Head_Sex": head_sex,
+            "Household_Head_Marital_Status": marital,
+            "Household_Head_Highest_Grade_Completed": education,
+            "Household_Head_Job_or_Business_Indicator": job_indicator,
+            "Household_Head_Occupation": occupation,
+            "Household_Head_Class_of_Worker": class_worker,
+            "Type_of_Household": hh_type,
+            "Tenure_Status": tenure,
+            "Electricity": electricity,
+            "Type_of_Building_or_House": building,
+            "Type_of_Roof": roof,
+            "Type_of_Walls": walls,
+            "Toilet_Facilities": toilet,
+            "Main_Source_of_Water_Supply": water,
+
+            # numerics
             "Total_Household_Income": income,
             "Total_Food_Expenditure": food_exp,
-            "Food_Share": food_exp / max(income,1),
-            "Household_Head_Age": 40,
+            "Food_Share": food_share,
+            "Agricultural_Household_indicator": agri_hh,
+            "Bread_and_Cereals_Expenditure": bread_cereals,
+            "Total_Rice_Expenditure": rice_exp,
+            "Meat_Expenditure": meat_exp,
+            "Total_Fish_and__marine_products_Expenditure": fish_exp,
+            "Fruit_Expenditure": fruit_exp,
+            "Vegetables_Expenditure": veg_exp,
+            "Restaurant_and_hotels_Expenditure": resto_exp,
+            "Alcoholic_Beverages_Expenditure": alc_exp,
+            "Tobacco_Expenditure": tob_exp,
+            "Clothing,_Footwear_and_Other_Wear_Expenditure": cloth_exp,
+            "Housing_and_water_Expenditure": house_water_exp,
+            "Imputed_House_Rental_Value": imputed_rent,
+            "Medical_Care_Expenditure": med_exp,
+            "Transportation_Expenditure": trans_exp,
+            "Communication_Expenditure": comm_exp,
+            "Education_Expenditure": edu_exp,
+            "Miscellaneous_Goods_and_Services_Expenditure": misc_exp,
+            "Special_Occasions_Expenditure": special_exp,
+            "Crop_Farming_and_Gardening_expenses": crop_exp,
+            "Total_Income_from_Entrepreneurial_Acitivites": entrepreneurial_inc,
+            "Household_Head_Age": head_age,
             "Total_Number_of_Family_members": hh_size,
-            "Members_with_age_5_-_17_years_old": 2,
-            "Region": region_one,
-            "Main_Source_of_Income": "Wages/Salaries",
-            "Household_Head_Sex": "Male",
-            "Household_Head_Marital_Status": "Married",
-            "Household_Head_Highest_Grade_Completed": educ,
-            "Type_of_Household": "Single-family",
-            "Tenure_Status": "Own_or_amortized",
-            "Electricity": "Yes",
+            "Members_with_age_less_than_5_year_old": under5,
+            "Members_with_age_5_-_17_years_old": age5_17,
+            "Total_number_of_family_members_employed": employed_members,
+            "House_Floor_Area": floor_area,
+            "House_Age": house_age,
+            "Number_of_bedrooms": bedrooms,
+            "Number_of_Television": tv_count,
+            "Number_of_CD/VCD/DVD": dvd_count,
+            "Number_of_Component/Stereo_set": stereo_count,
+            "Number_of_Refrigerator/Freezer": fridge_count,
+            "Number_of_Washing_Machine": washer_count,
+            "Number_of_Airconditioner": ac_count,
+            "Number_of_Car,_Jeep,_Van": car_count,
+            "Number_of_Landline/wireless_telephones": phone_landline,
+            "Number_of_Cellular_phone": phone_cell,
+            "Number_of_Personal_Computer": pc_count,
+            "Number_of_Stove_with_Oven/Gas_Range": stove_count,
+            "Number_of_Motorized_Banca": banca_count,
+            "Number_of_Motorcycle/Tricycle": motorcycle_count
         }])
 
         clf  = st.session_state["fitted_clf"]
