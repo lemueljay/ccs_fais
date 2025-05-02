@@ -31,25 +31,27 @@ def load_data(path: pathlib.Path) -> pd.DataFrame:
 
 df_base = load_data(DATA_PATH)
 
+# https://psa.gov.ph/system/files/phdsd/Highlights%20of%20the%202023%201st%20sem%20Official%20Poverty%20Statistics.pdf
+# 2018 data
 POVERTY_LINE = {
-    'CAR': 31774,
-    'Caraga': 31774,
-    'VI - Western Visayas': 33122,
-    'V - Bicol Region': 32000,
-    'ARMM': 30000,
-    'III - Central Luzon': 34000,
-    'II - Cagayan Valley': 32500,
-    'IVA - CALABARZON': 37097,
-    'VII - Central Visayas': 35064,
-    'X - Northern Mindanao': 33000,
-    'XI - Davao Region': 30861,
-    'VIII - Eastern Visayas': 31500,
-    'I - Ilocos Region': 33454,
-    'NCR': 37000,
-    'IVB - MIMAROPA': 32000,
-    'XII - SOCCSKSARGEN': 31000,
-    'IX - Zamboanga Peninsula': 31000
-    }  # extend table
+    'CAR': 12358,
+    'Caraga': 12346,
+    'VI - Western Visayas': 11964,
+    'V - Bicol Region': 11975,
+    'ARMM': 13599,
+    'III - Central Luzon': 12976,
+    'II - Cagayan Valley': 12182,
+    'IVA - CALABARZON': 13669,
+    'VII - Central Visayas': 12724,
+    'X - Northern Mindanao': 12259,
+    'XI - Davao Region': 12718,
+    'VIII - Eastern Visayas': 12195,
+    'I - Ilocos Region': 12837,
+    'NCR': 14102,
+    'IVB - MIMAROPA': 11472,
+    'XII - SOCCSKSARGEN': 12082,
+    'IX - Zamboanga Peninsula': 12424
+    } 
 
 
 
@@ -374,13 +376,13 @@ with tab_pred:
                 base_df   = X_test
             elif algo == "Logistic Regression (Default)":
                 X_pre = clf["pre"].transform(X_test)
-                if hasattr(X_pre, "toarray"):       # convert sparse → dense
+                if hasattr(X_pre, "toarray"):
                     X_pre = X_pre.toarray()
 
                 feature_names = clf["pre"].get_feature_names_out()
-                base_df = pd.DataFrame(X_pre, columns=feature_names)   # << give names
+                base_df = pd.DataFrame(X_pre, columns=feature_names)
 
-                explainer = shap.Explainer(clf["model"], base_df)      # << pass DataFrame
+                explainer = shap.Explainer(clf["model"], base_df)
                 shap_vals = explainer(base_df)
             fig,_ = plt.subplots()
             shap.summary_plot(shap_vals, base_df, show=False)
